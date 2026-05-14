@@ -1,7 +1,5 @@
 package com.example.user.ui;
 
-import com.example.user.AppUser;
-import com.example.user.ui.LoginView;
 import com.example.user.AppUserService;
 import com.example.user.Role;
 import com.vaadin.flow.component.button.Button;

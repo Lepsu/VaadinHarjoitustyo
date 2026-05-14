@@ -73,8 +73,12 @@ public class AppUserService {
                 "Uusi käyttäjä rekisteröityi: " + username);
 
         // Sähköposti-ilmoitus ylläpitäjälle
-        emailService.sendNewUserNotification(
-                ADMIN_EMAIL, username, email);
+        try {
+            emailService.sendNewUserNotification(ADMIN_EMAIL, username, email);
+        } catch (Exception e) {
+            System.err.println("Sahkoposti-ilmoitus epaonnistui: "
+                    + e.getMessage());
+        }
 
         return saved;
     }

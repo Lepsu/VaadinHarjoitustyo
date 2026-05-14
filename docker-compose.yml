@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # PostgreSQL tietokanta
   db:
     image: postgres:16-alpine
     container_name: eventapp-db
@@ -19,7 +16,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Vaadin sovellus
   app:
     build: .
     container_name: eventapp

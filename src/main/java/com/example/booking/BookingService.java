@@ -19,7 +19,7 @@ public class BookingService {
     }
 
     public List<Booking> findAll() {
-        return repository.findAllWithEvent();  // ← vaihda tämä
+        return repository.findAllWithEvent();
     }
 
     public Optional<Booking> findById(Long id) {

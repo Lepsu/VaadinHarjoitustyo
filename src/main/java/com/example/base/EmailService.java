@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import static org.jsoup.nodes.Document.OutputSettings.Syntax.html;
+
 @Service
 public class EmailService {
 
@@ -56,47 +58,40 @@ public class EmailService {
     public void sendNewUserNotification(String adminEmail,
                                         String newUsername,
                                         String newEmail) {
-        String subject = "Uusi käyttäjä rekisteröityi – EventApp";
-        String html = """
+        try {
+            String subject = "Uusi kayttaja rekisteroityi - EventApp";
+            String html = """
             <html>
-            <body style="font-family: Arial, sans-serif;
-                         padding: 20px;">
-                <h2 style="color: #6C63FF;">
-                    Uusi käyttäjä rekisteröityi
-                </h2>
-                <table style="border-collapse: collapse;
-                              width: 100%%;">
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #6C63FF;">Uusi kayttaja rekisteroityi</h2>
+                <table style="border-collapse: collapse; width: 100%%;">
                     <tr>
-                        <td style="padding: 8px;
-                                   border: 1px solid #ddd;
-                                   background: #f5f5f5;">
-                            <strong>Käyttäjänimi:</strong>
+                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                            <strong>Kayttajanimi:</strong>
                         </td>
-                        <td style="padding: 8px;
-                                   border: 1px solid #ddd;">
-                            %s
-                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">%s</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px;
-                                   border: 1px solid #ddd;
-                                   background: #f5f5f5;">
-                            <strong>Sähköposti:</strong>
+                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                            <strong>Sahkoposti:</strong>
                         </td>
-                        <td style="padding: 8px;
-                                   border: 1px solid #ddd;">
-                            %s
-                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">%s</td>
                     </tr>
                 </table>
                 <p style="color: #666; margin-top: 20px;">
-                    Tämä on automaattinen viesti EventApp:sta.
+                    Tama on automaattinen viesti EventApp:sta.
                 </p>
             </body>
             </html>
             """.formatted(newUsername, newEmail);
 
-        sendHtmlEmail(adminEmail, subject, html);
+            sendHtmlEmail(adminEmail, subject, html);
+
+        } catch (Exception e) {
+            System.err.println("Admin-ilmoituksen lahettaminen epaonnistui: "
+                    + e.getMessage());
+            // Ei kaadeta sovellusta sahkopostivirheeseen
+        }
     }
 
     // Salasanan vaihto sähköpostilla

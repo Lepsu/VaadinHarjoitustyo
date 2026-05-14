@@ -14,10 +14,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class BookingForm extends FormLayout {
@@ -37,8 +37,7 @@ public class BookingForm extends FormLayout {
     private final Button delete = new Button("Poista");
     private final Button cancel = new Button("Peruuta");
 
-    private final Binder<Booking> binder =
-            new BeanValidationBinder<>(Booking.class);
+    private final Binder<Booking> binder = new Binder<>(Booking.class);
 
     public BookingForm(List<Event> events) {
         addClassName("booking-form");
@@ -60,7 +59,34 @@ public class BookingForm extends FormLayout {
         referenceNumber.setReadOnly(true);
         referenceNumber.setPlaceholder("Generoidaan automaattisesti");
 
-        binder.bindInstanceFields(this);
+        // Oletusarvot
+        status.setValue(BookingStatus.PENDING);
+        bookingTime.setValue(LocalDateTime.now());
+
+        // MUUTOS: manuaaliset bindaukset – referenceNumber jätetään pois
+        binder.forField(bookerName)
+                .asRequired("Varaajan nimi on pakollinen")
+                .bind(Booking::getBookerName, Booking::setBookerName);
+
+        binder.forField(bookerEmail)
+                .asRequired("Sähköposti on pakollinen")
+                .bind(Booking::getBookerEmail, Booking::setBookerEmail);
+
+        binder.forField(numberOfSeats)
+                .asRequired("Paikkoja on pakollinen")
+                .bind(Booking::getNumberOfSeats, Booking::setNumberOfSeats);
+
+        binder.forField(bookingTime)
+                .bind(Booking::getBookingTime, Booking::setBookingTime);
+
+        binder.forField(status)
+                .asRequired("Status on pakollinen")
+                .bind(Booking::getStatus, Booking::setStatus);
+
+        binder.forField(event)
+                .bind(Booking::getEvent, Booking::setEvent);
+
+        // referenceNumber EI bindattu – generoidaan BookingService:ssä
 
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -89,6 +115,22 @@ public class BookingForm extends FormLayout {
         binder.setBean(booking);
         boolean isNew = booking == null || booking.getId() == null;
         delete.setVisible(!isNew);
+
+        // Näytä viitenumero jos olemassa
+        if (booking != null
+                && booking.getReferenceNumber() != null
+                && !booking.getReferenceNumber().isBlank()) {
+            referenceNumber.setValue(booking.getReferenceNumber());
+        } else {
+            referenceNumber.setValue("");
+            referenceNumber.setPlaceholder("Generoidaan automaattisesti");
+        }
+
+        // Oletusarvot uudelle varaukselle
+        if (isNew) {
+            status.setValue(BookingStatus.PENDING);
+            bookingTime.setValue(LocalDateTime.now());
+        }
     }
 
     private void validateAndSave() {

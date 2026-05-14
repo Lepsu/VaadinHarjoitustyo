@@ -1,7 +1,5 @@
 package com.example.booking;
 
-import com.example.booking.Booking;
-import com.example.booking.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

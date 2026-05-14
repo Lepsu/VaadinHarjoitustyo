@@ -1,10 +1,6 @@
 package com.example.base;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.VaadinSession;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;

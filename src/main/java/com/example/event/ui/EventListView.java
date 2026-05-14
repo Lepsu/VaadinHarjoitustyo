@@ -1,6 +1,5 @@
 package com.example.event.ui;
 
-import com.example.category.Category;
 import com.example.category.CategoryService;
 import com.example.event.CsvService;
 import com.example.event.Event;
@@ -10,8 +9,6 @@ import com.example.venue.VenueService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -25,10 +22,7 @@ import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.Menu;
-
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
-
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.server.StreamResource;
@@ -36,10 +30,8 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import com.vaadin.flow.component.html.Span;
 
 @PageTitle("Events")
 @PermitAll

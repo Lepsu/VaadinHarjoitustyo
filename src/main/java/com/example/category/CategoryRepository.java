@@ -1,11 +1,9 @@
 package com.example.category;
 
-import com.example.category.Category;
-import com.vaadin.copilot.shaded.guava.base.Optional;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
@@ -13,5 +11,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllWithEvents();
 
     Optional<Category> findByNameIgnoreCase(String name);
+
     List<Category> findByNameContainingIgnoreCase(String name);
 }
