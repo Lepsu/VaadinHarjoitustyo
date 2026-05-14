@@ -1,4 +1,5 @@
-package com.example.booking.ui;
+package com.example.booking;
 
-public class BookingStatus {
+public enum BookingStatus {
+    PENDING, CONFIRMED, CANCELLED
 }

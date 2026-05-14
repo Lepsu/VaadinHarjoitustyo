@@ -1,214 +1,206 @@
-package com.example.examplefeature.ui;
+package com.example.user.ui;
 
-import com.vaadin.flow.component.Component;
+import com.example.user.AppUser;
+import com.example.user.AppUserRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Main;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.BinderValidationStatus;
-import java.time.LocalDate;
-import jakarta.annotation.security.PermitAll;
+import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.Menu;
+import com.vaadin.flow.spring.security.AuthenticationContext;
+import jakarta.annotation.security.PermitAll;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @PageTitle("Profile")
 @PermitAll
 @Route(value = "profile")
-@Menu(title = "Profile")
-public class Profile extends Main {
+@Menu(title = "Profile", order = 6)
+public class ProfileView extends Main {
 
-    private final VerticalLayout layout = new VerticalLayout();
+    private final AppUserRepository userRepository;
+    private final AuthenticationContext authContext;
+    private final PasswordEncoder passwordEncoder;
 
-    private final TextField firstName = new TextField("First name");
+    private final TextField firstName = new TextField("Etunimi");
+    private final TextField lastName = new TextField("Sukunimi");
+    private final EmailField email = new EmailField("Sähköposti");
+    private final TextField username = new TextField("Käyttäjänimi");
 
-    private final TextField lastName = new TextField("Last name");
+    private final PasswordField currentPassword =
+            new PasswordField("Nykyinen salasana");
+    private final PasswordField newPassword =
+            new PasswordField("Uusi salasana");
+    private final PasswordField confirmNewPassword =
+            new PasswordField("Vahvista uusi salasana");
 
-    private final EmailField email = new EmailField("Email address");
+    private AppUser currentUser;
 
-    private final DatePicker dateOfBirth = new DatePicker("Birthday");
+    public ProfileView(AppUserRepository userRepository,
+                       AuthenticationContext authContext,
+                       PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.authContext = authContext;
+        this.passwordEncoder = passwordEncoder;
 
-    private final PhoneNumberField phone = new PhoneNumberField("Phone number");
+        VerticalLayout layout = new VerticalLayout();
+        layout.setMaxWidth("600px");
+        layout.getStyle().set("margin", "0 auto");
 
-    private final TextField occupation = new TextField("Occupation");
+        loadCurrentUser();
 
-    private final Button cancel = new Button("Cancel");
+        layout.add(
+                new H2("Profiili"),
+                createInfoSection(),
+                createProfileForm(),
+                createPasswordSection()
+        );
 
-    private final Button save = new Button("Save");
-
-    private final Binder<SamplePerson> binder = new Binder<>(SamplePerson.class);
-
-    public Profile() {
-        layout.add(createTitle());
-        layout.add(createFormLayout());
-        layout.add(createButtonLayout());
-        clearForm();
-        cancel.addClickListener(e -> clearForm());
-        save.addClickListener(e -> {
-            BinderValidationStatus<SamplePerson> validate = binder.validate();
-            if (validate.hasErrors()) {
-                return;
-            }
-            Notification.show(binder.getBean().getClass().getSimpleName() + " details stored.");
-            clearForm();
-        });
-        bind();
-        binder.setBean(new SamplePerson());
         add(layout);
     }
 
-    private void bind() {
-        binder.forField(firstName).asRequired().bind(SamplePerson::getFirstName, SamplePerson::setFirstName);
-        binder.forField(lastName).asRequired().bind(SamplePerson::getLastName, SamplePerson::setLastName);
-        binder.forField(email).asRequired().bind(SamplePerson::getEmail, SamplePerson::setEmail);
-        binder.forField(dateOfBirth).bind(samplePerson -> {
-            if (samplePerson.getDateOfBirth() == null) {
-                return null;
-            }
-            return LocalDate.parse(samplePerson.dateOfBirth);
-        }, (samplePerson, date) -> samplePerson.setDateOfBirth(date.toString()));
-        binder.forField(phone).bind(SamplePerson::getPhone, SamplePerson::setPhone);
-        binder.forField(occupation).bind(SamplePerson::getOccupation, SamplePerson::setOccupation);
-    }
-
-    private void clearForm() {
-        binder.setBean(new SamplePerson());
-    }
-
-    private Component createTitle() {
-        return new H3("Personal information");
-    }
-
-    private Component createFormLayout() {
-        FormLayout formLayout = new FormLayout();
-        email.setErrorMessage("Please enter a valid email address");
-        formLayout.add(firstName, lastName, dateOfBirth, phone, email, occupation);
-        return formLayout;
-    }
-
-    private Component createButtonLayout() {
-        HorizontalLayout buttonLayout = new HorizontalLayout();
-        buttonLayout.addClassName("button-layout");
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save);
-        buttonLayout.add(cancel);
-        return buttonLayout;
-    }
-
-    private static class PhoneNumberField extends CustomField<String> {
-
-        private final ComboBox<String> countryCode = new ComboBox<>();
-
-        private final TextField number = new TextField();
-
-        public PhoneNumberField(String label) {
-            setLabel(label);
-            countryCode.setWidth("120px");
-            countryCode.setPlaceholder("Country");
-            countryCode.setAllowedCharPattern("[\\+\\d]");
-            countryCode.setItems("+354", "+91", "+62", "+98", "+964", "+353", "+44", "+972", "+39", "+225");
-            countryCode.addCustomValueSetListener(e -> countryCode.setValue(e.getDetail()));
-            number.setAllowedCharPattern("\\d");
-            HorizontalLayout layout = new HorizontalLayout(countryCode, number);
-            layout.setFlexGrow(1.0, number);
-            add(layout);
-        }
-
-        @Override
-        protected String generateModelValue() {
-            if (countryCode.getValue() != null && number.getValue() != null) {
-                String s = countryCode.getValue() + " " + number.getValue();
-                return s;
-            }
-            return "";
-        }
-
-        @Override
-        protected void setPresentationValue(String phoneNumber) {
-            String[] parts = phoneNumber != null ? phoneNumber.split(" ", 2) : new String[0];
-            if (parts.length == 1) {
-                countryCode.clear();
-                number.setValue(parts[0]);
-            } else if (parts.length == 2) {
-                countryCode.setValue(parts[0]);
-                number.setValue(parts[1]);
-            } else {
-                countryCode.clear();
-                number.clear();
-            }
+    private void loadCurrentUser() {
+        String name = authContext.getPrincipalName().orElse("");
+        currentUser = userRepository.findByUsername(name).orElse(null);
+        if (currentUser != null) {
+            firstName.setValue(
+                    nvl(currentUser.getFirstName()));
+            lastName.setValue(
+                    nvl(currentUser.getLastName()));
+            email.setValue(
+                    nvl(currentUser.getEmail()));
+            username.setValue(
+                    nvl(currentUser.getUsername()));
+            username.setReadOnly(true);
         }
     }
 
-    public static class SamplePerson {
+    private VerticalLayout createInfoSection() {
+        if (currentUser == null) return new VerticalLayout();
 
-        private String firstName;
+        Span rolesSpan = new Span("Roolit: " +
+                currentUser.getRoles().toString());
+        rolesSpan.addClassNames("text-secondary", "text-s");
 
-        private String lastName;
+        VerticalLayout info = new VerticalLayout(rolesSpan);
+        info.setPadding(false);
+        info.setSpacing(false);
+        return info;
+    }
 
-        private String email;
+    private VerticalLayout createProfileForm() {
+        FormLayout form = new FormLayout();
+        form.add(firstName, lastName, username, email);
+        form.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("400px", 2)
+        );
 
-        private String dateOfBirth;
+        Button saveBtn = new Button("Tallenna tiedot");
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveBtn.addClickListener(e -> saveProfile());
 
-        private String phone;
+        VerticalLayout section = new VerticalLayout(
+                new H3("Perustiedot"), form, saveBtn);
+        section.setPadding(false);
+        return section;
+    }
 
-        private String occupation;
+    private VerticalLayout createPasswordSection() {
+        newPassword.setHelperText("Vähintään 6 merkkiä");
 
-        public String getFirstName() {
-            return firstName;
+        FormLayout form = new FormLayout();
+        form.add(currentPassword, newPassword, confirmNewPassword);
+        form.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1)
+        );
+
+        Button changeBtn = new Button("Vaihda salasana");
+        changeBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        changeBtn.addClickListener(e -> changePassword());
+
+        VerticalLayout section = new VerticalLayout(
+                new H3("Vaihda salasana"), form, changeBtn);
+        section.setPadding(false);
+        return section;
+    }
+
+    private void saveProfile() {
+        if (currentUser == null) return;
+
+        if (firstName.isEmpty() || lastName.isEmpty()
+                || email.isEmpty()) {
+            showNotification("Täytä kaikki kentät", false);
+            return;
         }
 
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
+        currentUser.setFirstName(firstName.getValue());
+        currentUser.setLastName(lastName.getValue());
+        currentUser.setEmail(email.getValue());
+        userRepository.save(currentUser);
+
+        showNotification("Tiedot tallennettu!", true);
+    }
+
+    private void changePassword() {
+        if (currentUser == null) return;
+
+        if (currentPassword.isEmpty() || newPassword.isEmpty()
+                || confirmNewPassword.isEmpty()) {
+            showNotification("Täytä kaikki salasanakentät", false);
+            return;
         }
 
-        public String getLastName() {
-            return lastName;
+        if (!passwordEncoder.matches(
+                currentPassword.getValue(),
+                currentUser.getPasswordHash())) {
+            showNotification("Nykyinen salasana on väärä", false);
+            return;
         }
 
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
+        if (newPassword.getValue().length() < 6) {
+            showNotification(
+                    "Uuden salasanan oltava vähintään 6 merkkiä", false);
+            return;
         }
 
-        public String getEmail() {
-            return email;
+        if (!newPassword.getValue()
+                .equals(confirmNewPassword.getValue())) {
+            showNotification("Uudet salasanat eivät täsmää", false);
+            return;
         }
 
-        public void setEmail(String email) {
-            this.email = email;
-        }
+        currentUser.setPasswordHash(
+                passwordEncoder.encode(newPassword.getValue()));
+        userRepository.save(currentUser);
 
-        public String getDateOfBirth() {
-            return dateOfBirth;
-        }
+        currentPassword.clear();
+        newPassword.clear();
+        confirmNewPassword.clear();
 
-        public void setDateOfBirth(String dateOfBirth) {
-            this.dateOfBirth = dateOfBirth;
-        }
+        showNotification("Salasana vaihdettu!", true);
+    }
 
-        public String getPhone() {
-            return phone;
-        }
+    private void showNotification(String msg, boolean success) {
+        Notification n = Notification.show(msg, 3000,
+                Notification.Position.BOTTOM_START);
+        n.addThemeVariants(success
+                ? NotificationVariant.LUMO_SUCCESS
+                : NotificationVariant.LUMO_ERROR);
+    }
 
-        public void setPhone(String phone) {
-            this.phone = phone;
-        }
-
-        public String getOccupation() {
-            return occupation;
-        }
-
-        public void setOccupation(String occupation) {
-            this.occupation = occupation;
-        }
+    private String nvl(String s) {
+        return s != null ? s : "";
     }
 }

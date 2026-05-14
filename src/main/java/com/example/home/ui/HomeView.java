@@ -1,5 +1,9 @@
 package com.example.home.ui;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.Configuration;
@@ -35,9 +39,33 @@ import com.vaadin.flow.router.Menu;
 @AnonymousAllowed
 @Route(value = "")
 @Menu(title = "Home")
-public class Home extends Main {
+public class HomeView extends Main {
 
-    public Home() {
+    public HomeView(AuthenticationContext authContext) {
+
+        // Login-nappi vain kirjautumattomille
+        if (!authContext.isAuthenticated()) {
+            Button loginBtn = new Button("Kirjaudu sisään",
+                    VaadinIcon.SIGN_IN.create());
+            loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_LARGE);
+            loginBtn.addClickListener(e ->
+                    loginBtn.getUI().ifPresent(ui -> ui.navigate("login")));
+
+            VerticalLayout loginBanner = new VerticalLayout(
+                    new com.vaadin.flow.component.html.H2(
+                            "Tervetuloa EventApp:iin!"),
+                    new com.vaadin.flow.component.html.Paragraph(
+                            "Kirjaudu sisään nähdäksesi tapahtumat ja tehdäksesi varauksia."),
+                    loginBtn
+            );
+            loginBanner.setAlignItems(
+                    com.vaadin.flow.component.orderedlayout
+                            .FlexComponent.Alignment.CENTER);
+            loginBanner.addClassNames("p-xl", "text-center");
+            add(loginBanner);
+        }
+
         Dashboard board = new Dashboard();
         board.setMaximumColumnCount(4);
         board.setMinimumColumnWidth("200px");

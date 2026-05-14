@@ -1,10 +1,13 @@
 package com.example.security;
+
 import static com.vaadin.flow.spring.security.VaadinSecurityConfigurer.vaadin;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
@@ -12,14 +15,27 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain vaadinSecurityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain vaadinSecurityFilterChain(
+            HttpSecurity http) throws Exception {
         return http
-                // Allow all access to /images/
-                .authorizeHttpRequests(
-                        authorize -> authorize
-                                .requestMatchers("/images/*.png", "/line-awesome/**", "/*.css", "/aura/**").permitAll())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/images/**",
+                                "/line-awesome/**",
+                                "/*.css",
+                                "/aura/**",
+                                "/h2-console/**"
+                        ).permitAll()
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
                 .with(vaadin(), vaadin -> vaadin.loginView("login"))
                 .build();
     }
-
 }

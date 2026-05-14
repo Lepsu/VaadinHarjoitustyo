@@ -1,20 +1,42 @@
 package com.example.security;
+
+import com.example.user.AppUserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.stream.Collectors;
+
 @Service
-public class AppUserDetailsService extends InMemoryUserDetailsManager {
-    private UserDetails user = User.builder().username("user") // password user
-            .password("{bcrypt}$2a$10$9Ib4CHv9MXaqtpd75JkQoOckbRmFqlR.LJZo0GIjKPAYs6TxxWofm").roles("USER").build();
+public class AppUserDetailsService implements UserDetailsService {
 
-    private UserDetails admin = User.builder().username("admin") // password admin
-            .password("{bcrypt}$2a$10$nkyAjGFOeQ8NWr1pd1ooR.DPBdpikX.cUK6WE00eUlh/cdwOiu6hK").roles("USER", "ADMIN")
-            .build();
+    private final AppUserRepository userRepository;
 
-    public AppUserDetailsService() {
-        createUser(user);
-        createUser(admin);
+    public AppUserDetailsService(AppUserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "Käyttäjää ei löydy: " + username));
+
+        var authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toList());
+
+        return new User(
+                user.getUsername(),
+                user.getPasswordHash(),
+                user.isEnabled(),
+                true, true, true,
+                authorities
+        );
     }
 }

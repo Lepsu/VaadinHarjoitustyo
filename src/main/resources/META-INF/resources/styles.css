@@ -1,29 +1,101 @@
-/* Add your styles here */
+/* ================================================
+   1. GLOBAALIT TYYLIT – fontti, väripaletti, kaarevuus
+   ================================================ */
+:root {
+    --lumo-font-family: 'Inter', 'Segoe UI', sans-serif;
 
-.app-logo {
-    border-radius: min(40%, var(--vaadin-radius-m));
-    margin-inline-start: var(--vaadin-padding-inline-container);
+    /* Oma väripaletti */
+    --lumo-primary-color: #6C63FF;
+    --lumo-primary-color-50pct: rgba(108, 99, 255, 0.5);
+    --lumo-primary-color-10pct: rgba(108, 99, 255, 0.1);
+    --lumo-primary-text-color: #6C63FF;
+    --lumo-primary-contrast-color: #ffffff;
+
+    /* Kaarevuus */
+    --lumo-border-radius-m: 12px;
+    --lumo-border-radius-l: 16px;
+    --lumo-border-radius-s: 6px;
 }
 
-.app-name {
-    font-weight: var(--aura-font-weight-semibold);
-    font-size: var(--aura-font-size-l);
+/* ================================================
+   HEADER
+   ================================================ */
+.app-header {
+    background: var(--lumo-primary-color);
+    color: white;
+    padding: var(--lumo-space-m);
+    width: 100%;
 }
 
+.app-header .app-name {
+    color: white;
+    font-size: var(--lumo-font-size-xl);
+    font-weight: bold;
+}
+
+/* ================================================
+   NAVIGAATIO – aktiivinen sivu korostus
+   ================================================ */
+vaadin-side-nav-item[active] {
+    background: var(--lumo-primary-color-10pct);
+    border-left: 3px solid var(--lumo-primary-color);
+    font-weight: bold;
+    color: var(--lumo-primary-color);
+}
+
+/* ================================================
+   FOOTER – kiinnitetty, responsiivinen
+   ================================================ */
 .app-footer {
-    color: var(--vaadin-text-color-secondary);
-    font-size: var(--aura-font-size-s);
+    background: var(--lumo-contrast-5pct);
+    border-top: 2px solid var(--lumo-primary-color);
+    padding: var(--lumo-space-m);
+    text-align: center;
+    width: 100%;
+    margin-top: auto;
 }
 
-/* TODO: This is only for demo purposes. You can delete it. */
-vaadin-side-nav:has(vaadin-side-nav-item:only-child)::after {
-    display: block;
-    content: "More menu items will appear here when you add more views.";
-    font-size: var(--aura-font-size-s);
-    color: var(--vaadin-text-color-secondary);
-    box-sizing: border-box;
-    padding: 1em;
-    max-width: 14em;
-    min-width: 100%;
-    white-space: normal;
+.app-footer a {
+    color: var(--lumo-primary-color);
+    text-decoration: none;
+    margin: 0 var(--lumo-space-s);
+}
+
+.app-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ================================================
+   5. HOVER + FOCUS + TRANSITION ANIMAATIOT
+   ================================================ */
+
+/* Kortti-komponentti – zoomaa 3% hoverissa */
+.event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--lumo-border-radius-l);
+    cursor: pointer;
+}
+
+.event-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 24px rgba(108, 99, 255, 0.25);
+}
+
+/* Napit – fade transition */
+vaadin-button {
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+vaadin-button:hover {
+    opacity: 0.88;
+}
+
+vaadin-button:focus-visible {
+    outline: 2px solid var(--lumo-primary-color);
+    outline-offset: 2px;
+}
+
+/* Grid rivit */
+vaadin-grid-cell-content {
+    transition: background-color 0.15s ease;
 }
